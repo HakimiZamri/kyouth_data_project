@@ -2,7 +2,7 @@
 
 ## Objective
 
-Build a robust, local data engineering pipeline that successfully extracts raw data from the `0_source` , processes and cleans it into a structured format, and stores it in a relational database (`jobs.db`). By the end of this module, the success metric is a fully functional `main.py` CLI tool that orchestrates a clean database table where the `description` is readable text, not messy HTML code.
+Build a robust, local data engineering pipeline that successfully extracts raw data from the `0_source` , processes and cleans it into a structured format, and stores it in a relational database (`jobs.db`). By the end of this project, the success metric is a fully functional `main.py` CLI tool that orchestrates a clean database table where the `description` is readable text, not messy HTML code.
 
 ```markdown
 [SOURCE] -> [EXTRACT] -> [CLEAN/PROCESS] -> [LOAD] -> [DATABASE]
@@ -62,31 +62,31 @@ python main.py all
 
 ### Run Individual Pipeline Stages
 
-You can also run each stage independently for testing or debugging purposes:
+You can also run each stage independently for testing or debugging purposes.
+
+Runs the data ingestion step (extract raw data into Bronze layer):
 
 ```bash
 python main.py ingest
 ```
 
-Runs the data ingestion step (extract raw data into Bronze layer).
+Runs data transformation and cleaning (Silver layer):
 
 ```bash
 python main.py process
 ```
 
-Runs data transformation and cleaning (Silver layer).
+Loads processed data into the final structured layer (Gold layer / database):
 
 ```bash
 python main.py load
 ```
 
-Loads processed data into the final structured layer (Gold layer / database).
+Runs data profiling and validation checks on the dataset:
 
 ```bash
 python main.py profile
 ```
-
-Runs data profiling and validation checks on the dataset.
 
 ## Technical Reflections
 
