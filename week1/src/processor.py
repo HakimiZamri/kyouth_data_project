@@ -38,7 +38,7 @@ def process_all_html(input_dir, output_dir):
             source_id = source_id
 
         title = soup.find("h1", attrs={"data-automation": "job-detail-title"})
-        job_title = title.get_text(strip=True) if title else None
+        job_title = title.get_text(separator=" ", strip=True) if title else None
 
         if job_title is None or job_title in ("", "-"):
             job_title = ""
@@ -50,7 +50,7 @@ def process_all_html(input_dir, output_dir):
             job_title = job_title
 
         company = soup.find("span", attrs={"data-automation": "advertiser-name"})
-        company_name = company.get_text(strip=True) if company else None
+        company_name = company.get_text(separator=" ", strip=True) if company else None
 
         if company_name is None or company_name in ("", "-"):
             company_name = ""
@@ -62,7 +62,7 @@ def process_all_html(input_dir, output_dir):
             company_name = company_name
 
         desc = soup.find("div", attrs={"data-automation": "jobAdDetails"})
-        job_desc = desc.get_text(strip=True) if desc else None
+        job_desc = desc.get_text(separator=" ", strip=True) if desc else None
 
         if job_desc is None or job_desc in ("", "-"):
             job_desc = ""
