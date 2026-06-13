@@ -4,7 +4,7 @@ from src.processor import process_all_html
 from src.loader import load_all_jsons
 from src.profiler import run_data_profile
 import sys
-import subprocess
+# import subprocess
 # import argparse
 
 SOURCE_DIR = Path("data/0_source")
@@ -41,7 +41,10 @@ def main():
 
     # if args.command == "ingest":
     #     run_bronze()
-
+    if len(sys.argv) < 2:
+        print("Correct usage: [uv run | python] main.py [ingest | process | load | profile | all]")
+        sys.exit(1)
+    
     command = sys.argv[1]
 
     if command == "ingest":
