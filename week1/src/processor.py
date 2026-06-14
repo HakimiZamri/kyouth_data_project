@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 import json
 import os
 
@@ -77,12 +77,17 @@ def process_all_html(input_dir, output_dir):
         else:
             job_desc = job_desc
 
-        detail = JobListing(
-            source_id=source_id,
-            job_title=job_title,
-            company=company_name,
-            description=job_desc,
-        )
+        try:
+            detail = JobListing(
+                source_id=source_id,
+                job_title=job_title,
+                company=company_name,
+                description=job_desc,
+            )
+        
+        except ValidationError as e:
+            print(f"Validation failed: {e}")
+            continue
 
         file_output = output_dir / f"{filename}.json"
         with open(file_output, "w", encoding="utf-8") as fw:
