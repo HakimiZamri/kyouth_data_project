@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
 import json
+import os
 
 class JobListing(BaseModel):
     source_id: str
@@ -10,6 +11,11 @@ class JobListing(BaseModel):
 
 def process_all_html(input_dir, output_dir):
     
+    if not os.path.exists(input_dir):
+        print(f"Warning: Please run ingest first or create {input_dir}")
+        
+    os.makedirs(output_dir, exist_ok=True)
+
     print("Silver:...")
 
     count = 0
@@ -17,6 +23,7 @@ def process_all_html(input_dir, output_dir):
     skipped = 0
 
     for bronze in input_dir.glob("*.html"):
+
         filename = bronze.stem 
         count += 1
 
@@ -28,8 +35,7 @@ def process_all_html(input_dir, output_dir):
         source = soup.find("meta", property="og:url")
         source_id = source.get("content").split("/")[-1] if source else None
 
-        if source_id is None or source_id in ("", "-"):
-            source_id = ""
+        if source_id is None or source_id == "":
             print(f"Missing source_id in: {filename}.html")
             skipped += 1
             continue
@@ -40,8 +46,7 @@ def process_all_html(input_dir, output_dir):
         title = soup.find("h1", attrs={"data-automation": "job-detail-title"})
         job_title = title.get_text(separator=" ", strip=True) if title else None
 
-        if job_title is None or job_title in ("", "-"):
-            job_title = ""
+        if job_title is None or job_title == "":
             print(f"Missing job_title in: {filename}.html")
             skipped += 1
             continue
@@ -52,8 +57,7 @@ def process_all_html(input_dir, output_dir):
         company = soup.find("span", attrs={"data-automation": "advertiser-name"})
         company_name = company.get_text(separator=" ", strip=True) if company else None
 
-        if company_name is None or company_name in ("", "-"):
-            company_name = ""
+        if company_name is None or company_name == "":
             print(f"Missing company in: {filename}.html")
             skipped += 1
             continue
@@ -64,8 +68,7 @@ def process_all_html(input_dir, output_dir):
         desc = soup.find("div", attrs={"data-automation": "jobAdDetails"})
         job_desc = desc.get_text(separator=" ", strip=True) if desc else None
 
-        if job_desc is None or job_desc in ("", "-"):
-            job_desc = ""
+        if job_desc is None or job_desc == "":
             print(f"Missing description in: {filename}.html")
             skipped += 1
             continue
