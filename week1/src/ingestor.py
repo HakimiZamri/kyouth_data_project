@@ -1,8 +1,15 @@
 from email import message_from_bytes
 from email.policy import default
 import quopri
+import os
+
 
 def ingest_all_mhtml(input_dir, output_dir):
+
+    if not os.path.exists(input_dir):
+        print(f"Warning: {input_dir} does not exists. Create {input_dir} first")
+
+    os.makedirs(output_dir, exist_ok=True)
 
     print("Bronze:...")
 
@@ -11,10 +18,11 @@ def ingest_all_mhtml(input_dir, output_dir):
     failedcount = 0
 
     for raw in input_dir.glob("*.mhtml"):
+        count += 1
         has_html = False
         filename = raw.stem
 
-        with open(raw, 'rb') as file:
+        with open(raw, "rb") as file:
             msg = message_from_bytes(file.read(), policy=default)
 
         html_parts = []
@@ -29,20 +37,16 @@ def ingest_all_mhtml(input_dir, output_dir):
 
         file_output = output_dir / f"{filename}.html"
 
-        with open(file_output, 'w', encoding="utf-8") as fw:
+        with open(file_output, "w", encoding="utf-8") as fw:
             fw.write("\n".join(html_parts))
 
         if has_html:
             print(f"Extracted: {filename}.mhtml")
             extcount += 1
-            count += 1
 
         else:
             print(f"No HTML content found in: {filename}.mhtml")
             failedcount += 1
-            count += 1
-            continue
 
     print("Bronze Summary:")
     print(f"Total: {count} | Extracted: {extcount} | Failed: {failedcount}")
-        
