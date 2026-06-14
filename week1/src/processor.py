@@ -3,33 +3,34 @@ from pydantic import BaseModel
 import json
 import os
 
+
 class JobListing(BaseModel):
     source_id: str
     job_title: str
     company: str
     description: str
 
+
 def process_all_html(input_dir, output_dir):
-    
+
     if not os.path.exists(input_dir):
         print(f"Warning: Please run ingest first or create {input_dir}")
-        
+
     os.makedirs(output_dir, exist_ok=True)
 
     print("Silver:...")
 
     count = 0
-    processed = 0 
+    processed = 0
     skipped = 0
 
     for bronze in input_dir.glob("*.html"):
-
-        filename = bronze.stem 
+        filename = bronze.stem
         count += 1
 
-        with open(bronze, 'rb') as file:
-            soup = BeautifulSoup(file, 'html.parser')
-        
+        with open(bronze, "rb") as file:
+            soup = BeautifulSoup(file, "html.parser")
+
         # clean_txt = soup.get_text(separator=" ", strip=True)
 
         source = soup.find("meta", property="og:url")
@@ -77,10 +78,10 @@ def process_all_html(input_dir, output_dir):
             job_desc = job_desc
 
         detail = JobListing(
-            source_id = source_id,
-            job_title = job_title,
-            company = company_name,
-            description = job_desc
+            source_id=source_id,
+            job_title=job_title,
+            company=company_name,
+            description=job_desc,
         )
 
         file_output = output_dir / f"{filename}.json"
@@ -89,6 +90,6 @@ def process_all_html(input_dir, output_dir):
 
         print(f"Processed: {filename}.html")
         processed += 1
-        
+
     print("Silver Summary:")
     print(f"Total: {count} | Processed: {processed} | Skipped: {skipped}")

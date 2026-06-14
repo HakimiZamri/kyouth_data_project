@@ -3,11 +3,12 @@ from email.policy import default
 import quopri
 import os
 
+
 def ingest_all_mhtml(input_dir, output_dir):
 
     if not os.path.exists(input_dir):
-        print(f"Warning: {input_dir} does not exists. Creating directory...")
-    
+        print(f"Warning: {input_dir} does not exists. Create {input_dir} first")
+
     os.makedirs(output_dir, exist_ok=True)
 
     print("Bronze:...")
@@ -21,7 +22,7 @@ def ingest_all_mhtml(input_dir, output_dir):
         has_html = False
         filename = raw.stem
 
-        with open(raw, 'rb') as file:
+        with open(raw, "rb") as file:
             msg = message_from_bytes(file.read(), policy=default)
 
         html_parts = []
@@ -36,7 +37,7 @@ def ingest_all_mhtml(input_dir, output_dir):
 
         file_output = output_dir / f"{filename}.html"
 
-        with open(file_output, 'w', encoding="utf-8") as fw:
+        with open(file_output, "w", encoding="utf-8") as fw:
             fw.write("\n".join(html_parts))
 
         if has_html:
@@ -49,4 +50,3 @@ def ingest_all_mhtml(input_dir, output_dir):
 
     print("Bronze Summary:")
     print(f"Total: {count} | Extracted: {extcount} | Failed: {failedcount}")
-        
