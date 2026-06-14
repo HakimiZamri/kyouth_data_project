@@ -1,8 +1,14 @@
 import sqlite3
 import json
+import os
 
 def load_all_jsons(input_dir, output_dir):
-    
+
+    if not os.path.exists(input_dir):
+        print(f"Warning: Please run process first or create {input_dir}")
+        
+    os.makedirs(output_dir, exist_ok=True)
+
     print("Gold:...")
 
     conn = sqlite3.connect(output_dir / "jobs.db")
@@ -49,6 +55,11 @@ def load_all_jsons(input_dir, output_dir):
             (jsonr["source_id"], jsonr["job_title"], jsonr["company"], jsonr["description"])
         )
         conn.commit()
+
+        if cursor.rowcount == 0:
+            print(f"Skipped (duplicate): {filename}.json")
+            skipped += 1
+            continue
 
         print(f"Inserted: {filename}.json")
         inserted += 1
