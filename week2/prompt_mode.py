@@ -34,7 +34,7 @@ def _detect_model(model: str) -> str:
 	return "gemini" if "gemini" in model_lower else "ollama"
 
 def _prompt_gemini(model: str, prompt: str) -> str:
-	
+
 	if not GOOGLE_API_KEY:
 		return (
             "Error: GOOGLE_API_KEY environment variable is not set. "
@@ -58,8 +58,24 @@ def _prompt_gemini(model: str, prompt: str) -> str:
 	except (KeyError, IndexError):
 		return f"Error: Unexpected Gemini response structure: {data}"
 
-def _prompt_ollama():
-	pass
+def _prompt_ollama(model: str, prompt: str) -> str:
+
+	url = f"{OLLAMA_BASE_URL}/generate"
+	payload = {
+		"model" : model,
+		"prompt" : prompt,
+		"stream" : False,
+	}
+	
+	response = requests.post(url, json=payload, timeout=60)
+	response.raise_for_status()
+
+	data = response.json()
+
+	try:
+		return data["response"]
+	except KeyError:
+		return f"Error: Unexpected Ollama response structure: {data}"
 
 def prompt_model(model: str, prompt: str) -> str :
 	
@@ -67,9 +83,9 @@ def prompt_model(model: str, prompt: str) -> str :
 
 	try:
 		if model_detect == "gemini":
-			return _prompt_gemini(prompt)
+			return _prompt_gemini(model, prompt)
 		else:
-			return _prompt_ollama(prompt)
+			return _prompt_ollama(model, prompt)
 
 	except requests.exceptions.ConnectionError as e:
 		if model_detect == "ollama":
@@ -101,8 +117,9 @@ def main():
 	prompt = sys.argv[2]
 	model = sys.argv[1]
 
-	if model not in GOOGLE_GEMINI_MODELS or OLLAMA_MODELS:
+	if model not in GOOGLE_GEMINI_MODELS and model not in OLLAMA_MODELS:
 		print("The model does not exist here. Try another model.")
+		sys.exit(1)
 
 	print("--- RESPONSE ---")
 
