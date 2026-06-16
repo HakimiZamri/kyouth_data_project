@@ -126,6 +126,6 @@ def main():
 	response = prompt_model(model, prompt)
 	print(response)
 
-if __name__ == main():
+if __name__ == "__main__":
 	main()
 
