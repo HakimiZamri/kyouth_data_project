@@ -1,6 +1,31 @@
 # AI Component
 
-## Objective
+A hybrid local/cloud pipeline that automatically tags job postings with a structured tech_stack field, extracted from free-text job descriptions using an LLM (Gemini via Google AI Studio, or a local Ollama model).
+
+
+## Project Overview
+
+
+Raw job postings store their requirements as unstructured free text inside a description column — which makes it hard for downstream models or analyses to reliably extract signal like "this job requires Python and AWS." The goal of this project is to automatically tag every job posting with a clean, structured tech_stack field (e.g. "Python, Django, PostgreSQL") derived from that free text, so the dataset becomes far easier to filter, aggregate, and feed into further machine learning models.
+
+
+
+Concretely, the system:
+
+
+Reads job postings from a SQLite database (jobs table) that don't yet have a tech_stack value.
+
+Sends each description to an LLM — either a cloud model via Google AI Studio (Gemini) or a local model via Ollama — with a prompt instructing it to extract just the relevant technologies.
+
+Writes the resulting comma-separated tag string back into the database, row by row.
+
+Paces all of this against real rate limits (for Gemini) or a hardware-derived hypothetical limit (for Ollama), so the pipeline can run unattended on a full dataset without tripping API throttling.
+
+
+
+The broader motivation, per the original course brief, is that tagging the raw text up front makes feature extraction easier for any LLM or model downstream — turning a free-text field into something closer to a structured, queryable label.
+
+
 
 ## Project Setup
 
@@ -134,19 +159,11 @@ Replace <RPM>, <TPM>, <RPD> with the actual numbers from your dashboard.
 
 Create `.env` file to store the secret configuration such as api key. `load_dotenv` from `dotenv` package needed.
 
-## Job Tagging System
-
-
-
-A hybrid local/cloud pipeline that automatically tags job postings with a structured `tech_stack` field, extracted from free-text job descriptions using an LLM (Gemini via Google AI Studio, or a local Ollama model).
-
-
 
 ---
 
 
-
-### API / Function Reference
+## API / Function Reference
 
 
 
@@ -169,11 +186,8 @@ The backend router. Given a model name and a prompt, it decides whether to call 
 **Inputs:**
 
 | Param | Type | Description |
-
 |---|---|---|
-
 | `model` | `str` | Model name. Must be one of `GOOGLE_GEMINI_MODELS` (`gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-3-flash-preview`) or `OLLAMA_MODELS` (`llama3.1`, `phi3`, `deepseek-r1:1.5b`). |
-
 | `prompt` | `str` | The text prompt to send to the model. |
 
 
@@ -317,15 +331,10 @@ The tagging pipeline. Reads untagged rows from the `jobs` table, calls `prompt_m
 **Inputs:**
 
 | Param | Type | Description |
-
 |---|---|---|
-
 | `desc` | `str` | Raw job description text. |
-
 | `model` | `str` | Model name to use. |
-
 | `max_retries` | `int` | Max retry attempts on a 429 / rate-limit error. |
-
 | `rpm` | `int` | Requests-per-minute limit, used to scale backoff wait time. |
 
 
@@ -414,7 +423,7 @@ ollama run <model> "say hi" --verbose   # see "eval rate: X tokens/s"
 
 
 
-### Module interaction
+## Module interaction
 
 
 
@@ -442,10 +451,7 @@ tag_data.py
 
 ```
 
-
-
 `tag_data.py` never talks to Gemini or Ollama directly — every model call goes through `prompt_model()`, so the tagging logic stays backend-agnostic.
-
 
 
 ---
@@ -455,29 +461,20 @@ tag_data.py
 ## Data / Assumptions
 
 
-
 ### Database schema
-
 
 
 The `jobs` table is expected to contain at minimum:
 
 
-
 | Column | Type | Notes |
-
 |---|---|---|
-
 | `source_id` | unique identifier | used as the row key for updates |
-
 | `description` | text | raw job description — the input to tagging |
-
 | `tech_stack` | text | output column; added automatically via `ALTER TABLE` if it doesn't already exist |
 
 
-
 ### External files
-
 
 
 - **`rate_limits.txt`** — plain text, one model per line: `model_name RPM TPM RPD`. Must be in the working directory when `tag_data.py` is run, since the path is relative (`rate_limit_path = "rate_limits.txt"`).
@@ -487,7 +484,6 @@ The `jobs` table is expected to contain at minimum:
 
 
 ### Assumptions made
-
 
 
 - **Input format:** `description` is assumed to be plain text in English. No HTML stripping, no language detection.
@@ -503,9 +499,7 @@ The `jobs` table is expected to contain at minimum:
 - **Idempotency:** Re-running `tag_data()` only processes rows where `tech_stack` is empty, so it's safe to re-run after an interruption — already-tagged rows are skipped.
 
 
-
 ### Data flow
-
 
 
 ```
@@ -539,41 +533,26 @@ UPDATE jobs SET tech_stack = ... WHERE source_id = ...  (committed immediately)
 ```
 
 
-
 ---
-
 
 
 ## Testing
 
 
-
 ### Test scenarios covered during development
 
 
-
 | Scenario | How it was triggered | Result |
-
 |---|---|---|
-
 | Missing CLI argument | `python tag_data.py` with no path | Clear usage message, exit code 1 |
-
 | Non-existent DB path | `python tag_data.py wrong_path.db` | `FileNotFoundError` with explicit message |
-
 | Invalid/non-SQLite file | Passed a `.txt` file as the DB path | Caught as `sqlite3.DatabaseError` |
-
 | `jobs` table missing or empty | Pointed at a DB without the expected schema | `ValueError` raised with explanation |
-
 | `tech_stack` column missing | Fresh DB without the column | Column auto-added via `ALTER TABLE` |
-
 | Row with `NULL` description | Manually inserted a row with `description = NULL` | Skipped with a log line, no crash |
-
 | 429 / rate-limit response | Forced by intentionally setting a low RPM | Exponential backoff retry observed in logs, eventually succeeds or gives up after `max_retries` |
-
 | Connection dropped mid-run (`Ctrl+C`) | Manually interrupted during a batch | Already-committed rows remained tagged; script exited cleanly without corrupting the DB |
-
 | `TypeError` on row indexing under `uv run` | Ran via `uv run tag_data.py jobs_d1.db` | Diagnosed as a `row_factory` inconsistency; fixed by accessing columns positionally / via `sqlite3.Row` consistently |
-
 | Connection used after close | Triggered "Cannot operate on a closed database" | Fixed by wrapping all DB work in `try/finally` so `conn.close()` runs exactly once |
 
 
@@ -603,9 +582,7 @@ sqlite3 jobs_d1.db "SELECT source_id, tech_stack FROM jobs LIMIT 10;"
 ```
 
 
-
 ### Validation method
-
 
 
 Correctness was checked manually by:
@@ -617,13 +594,10 @@ Correctness was checked manually by:
 - Confirming that interrupting the script mid-run (`Ctrl+C`) does not roll back already-committed rows, since each row commits independently.
 
 
-
 No automated test suite (e.g. `pytest`) was built for this version — testing was manual and exploratory, driven by actually running the script against the real database and observing console output and final column values.
 
 
-
 ---
-
 
 
 ## Limitations
@@ -649,41 +623,31 @@ No automated test suite (e.g. `pytest`) was built for this version — testing w
 - **Accuracy is bounded by model judgment.** Since tagging relies on an LLM's interpretation of free text, the extracted tech stack may miss implied technologies (e.g. a tool referenced by an uncommon abbreviation) or occasionally include a tool that's only tangentially mentioned.
 
 
-
 ---
-
 
 
 ## Architecture Reflection
 
 
-
 ### Design choices
-
 
 
 The system is split into two clearly separated layers: `prompt_model.py` handles **how to talk to a model** (Gemini vs Ollama, including auth, error formatting, and response parsing), while `tag_data.py` handles **what to do with the database** (selecting untagged rows, pacing requests, writing results back). This separation means the tagging logic never needs to know which backend is in use — it just calls `prompt_model(model, prompt)` and gets text back. Swapping from Gemini to a local Ollama model is a one-line change (the `model` variable), not a rewrite.
 
 
-
 Rate-limit handling was deliberately pulled into its own function, `_get_rate_params()`, rather than hardcoding sleep values. This makes the pacing logic auditable and explainable — every number used to throttle requests traces back to a real published limit (for Gemini) or a measured hardware constant (for Ollama), rather than an arbitrary `time.sleep(0.5)` picked by guesswork.
-
 
 
 ### Trade-offs
 
 
-
 The clearest trade-off is **simplicity over throughput**. Processing one job per API call, sequentially, with deliberate sleeps, is easy to reason about and debug but it's slow. A batch-prompting approach (sending several job descriptions in one request) would tag the database faster, but introduces a new failure mode: the model might return a different number of results than jobs sent, requiring response-count validation and partial-failure handling. Given the goal was getting the tagging mechanism *correct and robust* first, the slower-but-simpler one-at-a-time design was chosen deliberately.
-
 
 
 Similarly, error handling favors **graceful degradation over strict correctness**: a single bad row (malformed description, unexpected API response shape) gets skipped with a logged warning rather than crashing the whole run. This trades a small risk of silently incomplete tags for the much larger benefit of not losing hours of progress on a 500-row dataset because of one bad row.
 
 
-
 ### Improvements
-
 
 
 Given more time, the next priorities would be:
