@@ -196,9 +196,11 @@ def tag_data(db_url: str):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) >= 2:
+    if len(sys.argv) > 2:
         print("Usage: python tag_data.py <path_to_db>")
         print("Example: python tag_data.py jobs_d1.db")
+        print("OR")
+        print("Usage: python tag_data.py")
         sys.exit(1)
  
     db_path = sys.argv[1] if len(sys.argv) > 1 else DB_PATH
