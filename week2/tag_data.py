@@ -102,7 +102,7 @@ def _extract_tech_stack(
         "Return ONLY a comma-separated list of technologies with no extra explanation, "
         "If there is nothing technical stack in the description, just return empty string with no additional explanation"
         "no bullet points, no numbering, and no preamble. "
-        "If nothing technical is mentioned, return an empty string which is ''.\n\n"
+        "If nothing technical is mentioned, return an empty string."
         f"Job Description:\n{desc}"
     )
  
@@ -196,9 +196,11 @@ def tag_data(db_url: str):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) >= 2:
+    if len(sys.argv) > 2:
         print("Usage: python tag_data.py <path_to_db>")
         print("Example: python tag_data.py jobs_d1.db")
+        print("OR")
+        print("Usage: python tag_data.py")
         sys.exit(1)
  
     db_path = sys.argv[1] if len(sys.argv) > 1 else DB_PATH

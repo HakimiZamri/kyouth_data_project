@@ -3,6 +3,7 @@ import re
 from typing import List, Set, Optional
 from pydantic import BaseModel
 from pathlib import Path
+import sys
 
 input_file_path = Path("data/resume_d3.txt")
 db_url = Path("data/jobs_d1.db")
@@ -123,6 +124,9 @@ def find_skill_gaps(input_file_path: str, db_url: str) -> SkillGapResult:
     return SkillGapResult(gaps=gaps)
 
 if __name__ == "__main__":
-    
+    if len(sys.argv) > 1:
+        print("Usage: python find_skill_gaps.py")
+        sys.exit(1)
+
     skill_gaps = find_skill_gaps(input_file_path, db_url)
     print(skill_gaps)
