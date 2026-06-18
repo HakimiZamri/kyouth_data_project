@@ -1,4 +1,3 @@
-import requests
 from prompt_model import prompt_model, GOOGLE_GEMINI_MODELS
 import sqlite3
 from pathlib import Path
