@@ -102,7 +102,7 @@ def _extract_tech_stack(
         "Return ONLY a comma-separated list of technologies with no extra explanation, "
         "If there is nothing technical stack in the description, just return empty string with no additional explanation"
         "no bullet points, no numbering, and no preamble. "
-        "If nothing technical is mentioned, return an empty string which is ''.\n\n"
+        "If nothing technical is mentioned, return an empty string."
         f"Job Description:\n{desc}"
     )
  
