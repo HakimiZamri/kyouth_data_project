@@ -12,12 +12,23 @@ DB_PATH = Path("data/jobs_d1.db")
 AVG_TOKENS_PER_ROW = 400    # average tokens consumed per job description
 SAFETY_MARGIN = 0.8    # stay at 80% of any limit to avoid hitting it
 
-OLLAMA_HARDWARE_TPS = {
-    "phi3": 55,   # ~3.8B params — fastest of the three
-    "deepseek-r1:1.5b": 70,   # ~1.5B params — smallest, fastest
-    "llama3.1": 25,   # ~8B params — slowest of the three
+OLLAMA_HARDWARE_INPUT_TPS = {
+    "phi3": 20,   # ~3.8B params 
+    "deepseek-r1:1.5b": 80,   # ~1.5B params — smallest, fastest
+    "llama3.1": 10,   # ~8B params 
+    "gemma3:4b": 15, # ~4B params
+    "deepseek-r1:7b": 10, # ~7B params
 }
-OLLAMA_DEFAULT_TPS = 30   # used if a model isn't in the table above
+
+OLLAMA_HARDWARE_EVAL_TPS ={
+    "phi3": 40,  
+    "deepseek-r1:1.5b": 125,  
+    "llama3.1": 18,   
+    "gemma3:4b": 35, 
+    "deepseek-r1:7b": 20, 
+}
+
+OLLAMA_DEFAULT_TPS = 20   # used if a model isn't in the table above
  
 rate_limit_path = "rate_limits.txt"
 
@@ -50,9 +61,10 @@ def _get_rate_params(model: str):
     else:
         # Ollama — hypothetical rate limit derived from hardware speed,
         # looked up per-model since each model generates at a different TPS
-        hardware_tps = OLLAMA_HARDWARE_TPS.get(model, OLLAMA_DEFAULT_TPS)
+        hardware_input_tps = OLLAMA_HARDWARE_INPUT_TPS.get(model, OLLAMA_DEFAULT_TPS)
+        hardware_eval_tps = OLLAMA_HARDWARE_EVAL_TPS.get(model, OLLAMA_DEFAULT_TPS)
  
-        time_per_row = AVG_TOKENS_PER_ROW / hardware_tps
+        time_per_row = AVG_TOKENS_PER_ROW / ((hardware_input_tps + hardware_eval_tps) / 2)
         rows_per_minute = 60 / time_per_row
         hypothetical_rpm = max(1, math.floor(rows_per_minute * SAFETY_MARGIN))
  
@@ -96,13 +108,16 @@ def _extract_tech_stack(
         return ""
  
     prompt = (
-        "You are a technical recruiter assistant. "
-        "Given the following job description, extract the technical stack "
-        "mentioned (programming languages, frameworks, tools, platforms, databases, cloud services, APIs, methodologies, etc.). "
-        "Return ONLY a comma-separated list of technologies with no extra explanation, "
-        "If there is nothing technical stack in the description, just return empty string with no additional explanation"
-        "no bullet points, no numbering, and no preamble. "
-        "If nothing technical is mentioned, return an empty string."
+        "You are a technical recruiter assistant.\n\n"
+        "Task: Read the job description below and extract every technical "
+        "item mentioned — programming languages, frameworks, tools, "
+        "platforms, databases, cloud services, APIs, and methodologies.\n\n"
+        "Output rules:\n"
+        "- If technical items are found, return them as a single comma-separated "
+        "line, e.g.: Python, Django, PostgreSQL\n"
+        "- If no technical items are found, return nothing — an empty response.\n"
+        "- Do not include any other text: no labels, no bullet points, no "
+        "numbering, no explanation, no preamble.\n\n"
         f"Job Description:\n{desc}"
     )
  
@@ -141,6 +156,7 @@ def tag_data(db_url: str):
     cur = conn.cursor()
 
     try:
+        start_time = time.perf_counter()
         cur.execute("PRAGMA table_info(jobs)")
         columns = [row["name"] for row in cur.fetchall()]
 
@@ -177,11 +193,16 @@ def tag_data(db_url: str):
             rows_in_current_batch += 1
 
             if rows_in_current_batch >= batch_size and i < len(rows):
-                print(f"  Batch of {batch_size} done — waiting 60s for a fresh rate-limit window...")
-                time.sleep(60)
+                print(f"  Batch of {batch_size} done — waiting 30s for a fresh rate-limit window...")
+                time.sleep(30)
                 rows_in_current_batch = 0
             else:
                 time.sleep(sleep_per_request)
+
+        end_time = time.perf_counter()
+
+        elapsed_seconds = end_time - start_time
+        print(f"Total time: {elapsed_seconds:.4f} seconds")
 
     except sqlite3.OperationalError as e:
         print(f"Error: Insert failed - {e}")

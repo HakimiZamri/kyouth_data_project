@@ -399,7 +399,7 @@ batch_size         = min(rpm_safe_batch, tpm_safe_batch)
 
 ```
 
-time_per_row      = AVG_TOKENS_PER_ROW / hardware_tps
+time_per_row      = AVG_TOKENS_PER_ROW / ((hardware_input_tps + hardware_eval_tps) / 2)
 
 hypothetical_RPM  = floor((60 / time_per_row) × 0.8)
 
@@ -409,11 +409,11 @@ batch_size        = hypothetical_RPM
 
 ```
 
-`hardware_tps` is looked up per-model from `OLLAMA_HARDWARE_TPS`, measured via:
+`hardware_input_tps` and `hardware_input_eval_tps` is looked up per-model from `OLLAMA_HARDWARE_INPUT_TPS` and `OLLAMA_HARDWARE_EVAL_TPS` respectively, measured via:
 
 ```bash
 
-ollama run <model> "say hi" --verbose   # see "eval rate: X tokens/s"
+ollama run <model> "say hi" --verbose   # see "prompt eval rate: X tokens/s" and "eval rate: X tokens/s"
 
 ```
 

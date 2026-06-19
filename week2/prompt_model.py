@@ -19,6 +19,8 @@ OLLAMA_MODELS = {
     "llama3.1",
     "phi3",
     "deepseek-r1:1.5b",
+	"gemma3:4b",
+	"deepseek-r1:7b",
 }
 
 def _detect_model(model: str) -> str:
