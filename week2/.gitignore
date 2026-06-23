@@ -5,3 +5,4 @@ src/__pycache__/
 .venv/
 .env
 resources_eval/
+.skill_gap_cache.json
