@@ -1,0 +1,30 @@
+# Version control (don't ship git history into the build context)
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Environment / secrets
+.env
+.env.*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Docs and non-runtime files
+README.md
+*.md
+
+# Local-only files
+docker-compose.yml
