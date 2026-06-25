@@ -1,4 +1,4 @@
-from prompt_model import prompt_model, GOOGLE_GEMINI_MODELS
+from .prompt_model import prompt_model, GOOGLE_GEMINI_MODELS
 import sqlite3
 from pathlib import Path
 import sys

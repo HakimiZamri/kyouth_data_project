@@ -40,17 +40,28 @@ from typing import List
 
 from pydantic import BaseModel
 
-from prompt_model import prompt_model, GOOGLE_GEMINI_MODELS
-from tag_data import read_rate_limits
+from .prompt_model import prompt_model, GOOGLE_GEMINI_MODELS
+from .tag_data import read_rate_limits
+from .config import DATA_DIR, RESUME_PATH, DB_PATH, CACHE_PATH
 
-DEFAULT_RESUME_PATH = Path.cwd() / "resources_eval" / "resume_d3_eval.txt"
-DEFAULT_DB_PATH = Path.cwd() / "resources_eval" / "jobs_d3_eval.db"
+DEFAULT_RESUME_PATH = Path(RESUME_PATH)
+DEFAULT_DB_PATH = Path(DB_PATH)
+CACHE_PATH = Path(CACHE_PATH)
+DATA_DIR = Path(DATA_DIR)
+# DEFAULT_RESUME_PATH = Path.cwd() / "resources_eval" / "resume_d3_eval.txt"
+# DEFAULT_DB_PATH = Path.cwd() / "resources_eval" / "jobs_d3_eval.db"
+# CURRENT_FILE = Path(__file__).resolve()
+# WEEK2_ROOT = CURRENT_FILE.parent.parent  # Goes up: week2 -> backend -> week3
+# DATA_DIR = WEEK2_ROOT / "data"  # Now points to week3/data/
 
 # DEFAULT_RESUME_PATH = Path.cwd() / "data" / "resume_d3.txt"
 # DEFAULT_DB_PATH = Path.cwd() / "data" / "jobs_d1.db"
 
+# DEFAULT_RESUME_PATH = DATA_DIR / "resume_d3.txt"
+# DEFAULT_DB_PATH = DATA_DIR / "jobs_d1.db"
+
 MODEL = "gemini-2.5-flash"
-CACHE_PATH = Path.cwd() / ".skill_gap_cache.json"
+# CACHE_PATH = Path.cwd() / ".skill_gap_cache.json"
 
 # Skill compound terms that contain a "/" but must NOT be split into
 # separate skills. Matched case-insensitively as whole phrases.
@@ -185,11 +196,6 @@ def _save_cache(cache: dict):
         pass
 
 
-# --------------------------------------------------------------------------- #
-# Prompt building / parsing
-# --------------------------------------------------------------------------- #
-
-
 def _build_gap_prompt(resume_text: str, skill_batch: List[str]) -> str:
     skills_block = ", ".join(skill_batch)
 
@@ -292,8 +298,25 @@ def find_skill_gaps(input_file_path: str, db_url: str) -> SkillGapResult:
 
     # --- Read resume ---------------------------------------------------- #
     try:
-        with open(input_file_path, "r", encoding="utf-8") as f:
-            resume_text = f.read()
+        
+        encodings = ['utf-8', 'windows-1252', 'latin-1', 'cp1252']
+        resume_text = None
+        
+        for encoding in encodings:
+            try:
+                with open(input_file_path, "r", encoding=encoding) as f:
+                    resume_text = f.read()
+                print(f"Successfully read file with {encoding} encoding")
+                break
+            except UnicodeDecodeError:
+                continue
+        
+        if resume_text is None:
+            # Last resort: ignore errors
+            with open(input_file_path, "r", encoding='utf-8', errors='ignore') as f:
+                resume_text = f.read()
+            print("⚠️ Read file with errors='ignore'")
+            
     except (FileNotFoundError, OSError) as e:
         print(f"Warning: could not read resume file '{input_file_path}': {e}")
         return SkillGapResult(

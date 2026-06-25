@@ -1,20 +1,40 @@
-FROM python:3.14.5-bookworm 
+FROM python:3.14-slim
 
-# Install uv (fast Python package manager)
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
- 
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Set working directory
 WORKDIR /app
- 
-# Copy dependency files first for better layer caching
-COPY pyproject.toml ./
- 
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install UV
+RUN pip install --no-cache-dir uv
+
+# Copy dependency files
+COPY frontend/pyproject.toml frontend/uv.lock ./
+
 # Install dependencies
-RUN uv sync --no-dev || uv pip install --system fastapi "uvicorn[standard]" jinja2
- 
+RUN uv sync --no-dev
+
 # Copy source code
-COPY src ./src
- 
+COPY frontend/src/ ./src/
+
+COPY .env.example .env.example
+
+# Create static directory
+RUN mkdir -p ./src/static
+
+# Expose port
 EXPOSE 8000
 
-ENTRYPOINT ["uv", "run", "uvicorn"]
-CMD ["--app-dir", "src", "--host", "0.0.0.0", "app:app"] 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run
+CMD ["uv", "run", "python", "-m", "src.app"]

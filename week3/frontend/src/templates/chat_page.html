@@ -12,7 +12,7 @@
       <h1 class="mb-3">Resume Helper Chatbot</h1>
 
       <!-- Scrollable chat history -->
-      <div id="chat-history" class="border rounded bg-white p-3 mb-3 d-flex flex-column gap-2">
+      <div id="chat-history" class="border rounded bg-white p-3 mb-3 d-flex flex-column gap-2" style="height: 60vh; overflow-y: auto;">
         <div class="text-muted small text-center">Upload a resume PDF and/or type a message to get started.</div>
       </div>
 
@@ -20,7 +20,7 @@
       <form id="chat-form" class="d-flex flex-column gap-2">
         <div id="file-chip-area" class="d-none">
           <span class="badge bg-secondary-subtle text-secondary-emphasis border" id="file-chip">
-            📄 <span id="file-chip-name"></span>
+             <span id="file-chip-name"></span>
             <button type="button" id="file-chip-remove" class="btn-close btn-close-small ms-1" aria-label="Remove file"></button>
           </span>
         </div>
@@ -44,14 +44,16 @@
       </form>
     </div>
 
-    <!-- pdf.js, used client-side to extract text from uploaded PDFs before sending -->
+    <!-- pdf.js for client-side PDF extraction -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.0.0/marked.min.js"></script>
 
-    <!-- backend_url comes from the server, which read it from the BACKEND_URL env var.
-         This is the one place server-rendered config crosses into client JS. -->
+    <!-- Backend URL from server -->
     <script>
       window.BACKEND_URL = "{{ backend_url }}";
+      console.log('Backend URL:', window.BACKEND_URL);
     </script>
     <script src="{{ url_for('static', path='js/chat.js') }}"></script>
   </body>
