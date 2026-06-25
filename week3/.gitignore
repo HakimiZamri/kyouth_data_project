@@ -1,14 +1,335 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+*.pyd
 *.pyo
-.venv/
-venv/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
 *.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-wheel-metadata/
+share/python-wheels/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
 .env
-.env.*
-.DS_Store
-Thumbs.db
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env.example
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# UV cache
+.cache/
+uv.lock  # Optional: keep if you want to lock dependencies
+
+
+# Static files (if generated)
+static/
+*.log
+
+# Uploads
+uploads/
+media/
+
+
+# Docker volumes
+volumes/
+docker-volumes/
+
+# Docker secrets (if any)
+*.secret
+
+# Docker Compose overrides
+docker-compose.override.yml
+docker-compose.*.yml
+
+
+# Visual Studio Code
 .vscode/
+*.code-workspace
+.history/
+*.vsix
+
+# PyCharm
 .idea/
-.uv/
-.ruff_cache
+*.iml
+*.iws
+.idea/
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+*.un~
+*.orig
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+*.AppleDouble
+*.LSOverride
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Linux
+*~
+
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Application specific
+.skill_gap_cache.json
+*.pid
+*.pid.lock
+
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+*.env
+
+# Secrets
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.truststore
+
+
+# Testing artifacts
+.pytest_cache/
+.tox/
+.nox/
+.coverage*
+htmlcov/
+*.cover
+*.py,cover
+.hypothesis/
+coverage.xml
+test-reports/
+
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Data files (if generated)
+*.csv
+*.xlsx
+*.xls
+*.json
+!package.json
+!package-lock.json
+
+
+# Data directory (if it contains sensitive/generated data)
+data/
+!data/.gitkeep
+
+# Cache directory
+.cache/
+.skill_gap_cache.json
+
+# Uploaded files
+uploads/
+temp/
+*.pdf  # If you don't want to track PDFs
+
+
+# Docker-compose overrides
+docker-compose.override.yml
+docker-compose.*.yml
+.Dockerfile
+docker-compose.prod.yml
+
+# Docker volumes
+.volumes/
+.containers/
