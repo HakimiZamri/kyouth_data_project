@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resume Helper Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="{{ url_for('static', path='css/chat.css') }}" rel="stylesheet">
+  </head>
+  <body class="bg-light">
+    <div class="container py-4" style="max-width: 800px;">
+      <h1 class="mb-3">Resume Helper Chatbot</h1>
+
+      <!-- Scrollable chat history -->
+      <div id="chat-history" class="border rounded bg-white p-3 mb-3 d-flex flex-column gap-2">
+        <div class="text-muted small text-center">Upload a resume PDF and/or type a message to get started.</div>
+      </div>
+
+      <!-- Upload + input section -->
+      <form id="chat-form" class="d-flex flex-column gap-2">
+        <div id="file-chip-area" class="d-none">
+          <span class="badge bg-secondary-subtle text-secondary-emphasis border" id="file-chip">
+            📄 <span id="file-chip-name"></span>
+            <button type="button" id="file-chip-remove" class="btn-close btn-close-small ms-1" aria-label="Remove file"></button>
+          </span>
+        </div>
+
+        <div class="input-group">
+          <button class="btn btn-outline-secondary" type="button" id="upload-btn" title="Attach PDF">
+            📎
+          </button>
+          <input type="file" id="pdf-input" accept="application/pdf" class="d-none">
+
+          <input
+            type="text"
+            id="message-input"
+            class="form-control"
+            placeholder="Type your message..."
+            autocomplete="off"
+          >
+          <button class="btn btn-primary" type="submit" id="send-btn">Send</button>
+        </div>
+        <div id="status-line" class="form-text"></div>
+      </form>
+    </div>
+
+    <!-- pdf.js, used client-side to extract text from uploaded PDFs before sending -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <!-- backend_url comes from the server, which read it from the BACKEND_URL env var.
+         This is the one place server-rendered config crosses into client JS. -->
+    <script>
+      window.BACKEND_URL = "{{ backend_url }}";
+    </script>
+    <script src="{{ url_for('static', path='js/chat.js') }}"></script>
+  </body>
+</html>

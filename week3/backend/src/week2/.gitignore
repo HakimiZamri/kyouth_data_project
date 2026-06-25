@@ -1,0 +1,8 @@
+data/
+src/__pycache__/
+/__pycache__
+.ruff_cache/
+.venv/
+.env
+resources_eval/
+.skill_gap_cache.json
